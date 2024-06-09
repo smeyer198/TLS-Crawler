@@ -51,6 +51,7 @@ public class TlsScan extends Scan {
             ServerScannerConfig config = new ServerScannerConfig(generalDelegate);
             config.getExecutorConfig().setScanDetail(scanJob.getScanConfig().getScannerDetail());
             config.setTimeout(scanJob.getScanConfig().getTimeout());
+            config.getDtlsDelegate().setDTLS(true);
             config.getClientDelegate()
                     .setHost(
                             scanJob.getScanTarget().getIp()
@@ -71,6 +72,10 @@ public class TlsScan extends Scan {
                     scanJob.getScanTarget(),
                     scanJob.getScanConfig().getScannerDetail(),
                     (report.getScanEndTime() - report.getScanStartTime()) / 1000);
+            LOGGER.info(
+                    "cancelled.get() {}\n" + "report.getServerIsAlive() {}\n",
+                    cancelled.get(),
+                    report.getServerIsAlive());
             if (!cancelled.get()
                     && (report.getServerIsAlive() == null || report.getServerIsAlive())) {
                 persistenceProvider.insertScanResult(
@@ -110,7 +115,9 @@ public class TlsScan extends Scan {
 
     private Document createDocumentFromSiteReport(ServerReport report) {
         Document document = new Document();
+        LOGGER.info("Writing report {}", report);
         document.put("report", report);
+        LOGGER.info("Created Document {}", document);
         return document;
     }
 }
